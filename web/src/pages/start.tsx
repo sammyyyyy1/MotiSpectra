@@ -7,7 +7,8 @@ import Image from "next/image";
 export default function Page() {
   const videoRef = useRef<any>(null);
   const [stream, setStream] = useState<null | MediaStream>(null);
-  const [graphTab, setGraphTab] = useState<"radar" | "avg">("radar");
+  const [graphTab, setGraphTab] = useState<"radar" | "avg">("avg");
+  const [showGrid, setShowGrid] = useState(false)
   const [boxes, setBoxes] = useState<[[number, number], [number, number]][]>([]);
   const [analysisData, setAnalysisData] = useState<
     {
@@ -30,7 +31,7 @@ export default function Page() {
       };
     }[]
   >([]);
-  console.log(analysisData);
+  // console.log(analysisData);
 
   async function startStream() {
     try {
@@ -64,7 +65,9 @@ export default function Page() {
     const data = [...analysisData, { emotion, engagement }] as any;
     analysisData.push({ emotion, engagement } as any);
     if (data.length > 16) data.shift();
-    setAnalysisData(data);
+    console.log(2, data)
+    setAnalysisData([...data]);
+    console.log("add analysis ended")
   }
   function movingAverage(arr: number[], windowSize = 4) {
     return arr.map((_, i, arr) => {
@@ -98,8 +101,54 @@ export default function Page() {
             },
           });
           const data = await res.json();
-          console.log(data)
           setBoxes(data.boxes);
+          if (data.analysis_emotion) {
+            console.log("DO STUFF")
+            console.log(data)
+            let emotionsToAdd = data.analysis_emotion.reduce((prev, next) => ({
+              angry: prev.angry + next.angry,
+              disgust: prev.disgust + next.disgust,
+              fear: prev.fear + next.fear,
+              happy: prev.happy + next.happy,
+              neutral: prev.neutral + next.neutral,
+              sad: prev.sad + next.sad,
+              surprise: prev.surprise + next.surprise,
+
+            }))
+            let engagementToAdd = data.analysis_engagement.reduce((prev, next) => ({
+              bored: prev.bored + next.bored,
+              confused: prev.confused + next.confused,
+              drowsy: prev.drowsy + next.drowsy,
+              frustrated: prev.frustrated + next.frustrated,
+              engaged: prev.engaged + next.engaged,
+              "looking away": prev["looking away"] + next["looking away"],
+            }))
+            emotionsToAdd = {
+              angry: emotionsToAdd.angry / data.analysis_emotion.length,
+              disgust: emotionsToAdd.disgust / data.analysis_emotion.length,
+              fear: emotionsToAdd.fear / data.analysis_emotion.length,
+              happy: emotionsToAdd.happy / data.analysis_emotion.length,
+              neutral: emotionsToAdd.neutral / data.analysis_emotion.length,
+              sad: emotionsToAdd.sad / data.analysis_emotion.length,
+              surprise: emotionsToAdd.surprise / data.analysis_emotion.length,
+            }
+            engagementToAdd = {
+              bored: engagementToAdd.bored / data.analysis_engagement.length,
+              confused: engagementToAdd.confused / data.analysis_engagement.length,
+              drowsy: engagementToAdd.drowsy / data.analysis_engagement.length,
+              frustrated: engagementToAdd.frustrated / data.analysis_engagement.length,
+              interested: engagementToAdd.engaged / data.analysis_engagement.length,
+              looking_away: engagementToAdd["looking away"] / data.analysis_engagement.length,
+            }
+
+            console.log(1, {emotionsToAdd, engagementToAdd})
+            addAnalysisData(emotionsToAdd, engagementToAdd);
+            // if (graphTab === "radar") {
+            //   setGraphTab("avg")
+            // } else {
+            //   setGraphTab("radar")
+            // };
+          }
         } catch (error) {
           console.error("Error looping through capture:", error);
         }
@@ -129,9 +178,9 @@ export default function Page() {
             item.emotion.disgust * -10 +
             item.emotion.fear * -20 +
             item.emotion.happy * 100 +
-            item.emotion.neutral * 10 +
-            item.emotion.sad * -10 +
-            item.emotion.surprise * 40,
+            item.emotion.neutral * 50 +
+            item.emotion.sad * -20 +
+            item.emotion.surprise * 60,
         ),
       ),
     ),
@@ -143,15 +192,17 @@ export default function Page() {
         Math.max(
           0,
           item.engagement.bored * -50 +
-            item.engagement.confused * -10 +
+            item.engagement.confused * 60 +
             item.engagement.drowsy * -20 +
-            item.engagement.frustrated * -70 +
+            item.engagement.frustrated * 60 +
             item.engagement.interested * 150 +
             item.engagement.looking_away * -10,
         ),
       ),
     ),
   );
+
+  console.log(3, analysisData)  
 
   return (
     <div className="h-dvh flex p-4 gap-4">
@@ -170,7 +221,7 @@ export default function Page() {
                 muted
                 style={{ maxWidth: "100%" }}
               />
-              {boxes.map((box, i) => (
+              {showGrid && boxes.map((box, i) => (
                 <div
                   style={{
                     left: `${box[0][0] * 100}%`,
@@ -208,46 +259,27 @@ export default function Page() {
             Stop Screensharing
           </Button>
           <Button
-            onClick={() => {
-              const emotion = {
-                angry: Math.random(),
-                disgust: Math.random(),
-                fear: Math.random(),
-                happy: Math.random(),
-                neutral: Math.random(),
-                sad: Math.random(),
-                surprise: Math.random(),
-              };
-              const engagement = {
-                bored: Math.random(),
-                confused: Math.random(),
-                drowsy: Math.random(),
-                frustrated: Math.random(),
-                interested: Math.random(),
-                looking_away: Math.random(),
-              };
-              addAnalysisData(emotion, engagement);
-            }}
+            onClick={() => setShowGrid(!showGrid)}
           >
-            Add Random Data
+            Toggle Face Grid
           </Button>
         </div>
       </div>
       <div className="flex-[35]">
         <div className="w-full flex">
           <button
-            className={`${graphTab === "radar" ? "bg-primary-container" : "bg-secondary-container"} flex-1 
-                        transition-colors rounded-t-xl p-3 text-label-large`}
-            onClick={() => setGraphTab("radar")}
-          >
-            Radar Graphs
-          </button>
-          <button
             className={`${graphTab === "avg" ? "bg-primary-container" : "bg-secondary-container"} flex-1 
                         transition-colors rounded-t-xl p-3 text-label-large`}
             onClick={() => setGraphTab("avg")}
           >
             Moving Average Graphs
+          </button>
+          <button
+            className={`${graphTab === "radar" ? "bg-primary-container" : "bg-secondary-container"} flex-1 
+                        transition-colors rounded-t-xl p-3 text-label-large`}
+            onClick={() => setGraphTab("radar")}
+          >
+            Radar Graphs
           </button>
         </div>
         <div className="w-full bg-primary-container p-3 rounded-b-xl">
