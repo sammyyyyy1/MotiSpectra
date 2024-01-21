@@ -55,7 +55,7 @@ export default function Page() {
         const image = takeScreenshot();
         console.log(2, Date.now() - lastTime);
         if (image === "data:,") continue;
-        const res = await fetch("http://192.168.57.220:5000/process-image", {
+        const res = await fetch("http://127.0.0.1:5000/process-image", {
           method: "POST",
           body: JSON.stringify({
             image: image,
