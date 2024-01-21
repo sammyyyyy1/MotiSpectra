@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import LineGraph from "@/components/LineGraph";
 import RadarGraph from "@/components/RadarGraph";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 export default function Page() {
   const videoRef = useRef<any>(null);
@@ -68,17 +69,37 @@ export default function Page() {
               style={{ maxWidth: "100%" }}
             />
           ) : (
-            <p className="text-headline-small">Use the toolbar below to start screensharing</p>
+            <div className="flex flex-col items-center justify-center">
+              <Image
+                src="/MotiSpectra-logos_white.png"
+                alt="MotiSpectra"
+                width={250}
+                height={200}
+              />
+              <p className="text-headline-small font-mono font-bold">
+                Use the toolbar below to start screensharing
+              </p>
+            </div>
           )}
         </div>
         <div className="flex gap-4">
-          <Button onClick={startStream} disabled={!!stream}>
+          <Button
+            onClick={startStream}
+            disabled={!!stream}
+            className="font-mono font-bold"
+          >
             Start Screensharing
           </Button>
-          <Button onClick={closeStream} disabled={!stream} className="bg-error">
+          <Button
+            onClick={closeStream}
+            disabled={!stream}
+            className="bg-error font-mono font-bold"
+          >
             Stop Screensharing
           </Button>
-          <Button onClick={takeScreenshot}>Take Screenshot</Button>
+          <Button onClick={takeScreenshot} className="font-mono font-bold">
+            Take Screenshot
+          </Button>
         </div>
       </div>
       <div className="flex-[35]">
@@ -104,7 +125,15 @@ export default function Page() {
               <div className="w-full flex justify-center pr-[2%]">
                 <div className="w-[225px]">
                   <RadarGraph
-                    labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
+                    labels={[
+                      "Happy",
+                      "Neutral",
+                      "Sad",
+                      "Disgust",
+                      "Anger",
+                      "Fear",
+                      "Surprise",
+                    ]}
                     data={[10, 20, 30, 40, 50, 60, 70]}
                   />
                 </div>
@@ -128,14 +157,34 @@ export default function Page() {
           ) : (
             <div className="flex justify-center">
               <div className="w-[70%] flex flex-col py-8">
-                <h2 className="text-title-medium mb-2 text-center">Emotion Score</h2>
+                <h2 className="text-title-medium mb-2 text-center">
+                  Emotion Score
+                </h2>
                 <LineGraph
-                  labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
+                  labels={[
+                    "Happy",
+                    "Neutral",
+                    "Sad",
+                    "Disgust",
+                    "Anger",
+                    "Fear",
+                    "Surprise",
+                  ]}
                   data={[10, 20, 30, 40, 50, 60, 70]}
                 />
-                <h2 className="text-title-medium mb-2 text-center mt-12">Engagement Score</h2>
+                <h2 className="text-title-medium mb-2 text-center mt-12">
+                  Engagement Score
+                </h2>
                 <LineGraph
-                  labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
+                  labels={[
+                    "Happy",
+                    "Neutral",
+                    "Sad",
+                    "Disgust",
+                    "Anger",
+                    "Fear",
+                    "Surprise",
+                  ]}
                   data={[10, 20, 30, 40, 50, 60, 70]}
                 />
               </div>
