@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Inter, Open_Sans } from "next/font/google";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 const inter = Open_Sans({ subsets: ["latin"] });
 
@@ -9,6 +9,7 @@ export default function Home() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
+    console.log("about");
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -56,7 +57,7 @@ export default function Home() {
         </Link>
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
+      <div ref={bottomRef} className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
         <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30 mb-4">
           <h2 className={`mb-3 text-2xl font-semibold`}>
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
