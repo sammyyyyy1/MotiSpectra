@@ -1,0 +1,8 @@
+opencv-python
+json5
+numpy
+matplotlib
+Keras
+Keras-Preprocessing
+Keras-Applications
+tensorflow

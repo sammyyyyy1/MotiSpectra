@@ -10,10 +10,9 @@ from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dense, Dropout,
 from tensorflow.keras.optimizers import Adam
 import matplotlib.pyplot as plt
 
-
 def get_prediction(cv2_image):
     # Define your model architecture
-    IMG_SIZE = 48
+    IMG_SIZE=48
     input_layer = Input(shape=(IMG_SIZE, IMG_SIZE, 1))
     x = Conv2D(32, kernel_size=(3, 3), activation='relu')(input_layer)
     x = BatchNormalization()(x)
@@ -64,11 +63,10 @@ def get_prediction(cv2_image):
     model = Model(inputs=input_layer, outputs=output_layer)
 
     # Load the pre-trained weights
-    model.load_weights('emotion_model_weights.h5')
+    model.load_weights('model_weights.h5')
 
     # Compile the model if necessary
-    model.compile(optimizer=Adam(learning_rate=0.001),
-                  loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Load and preprocess an example image
     img_array = cv2.resize(cv2_image, (IMG_SIZE, IMG_SIZE))
@@ -77,8 +75,7 @@ def get_prediction(cv2_image):
 
     # Display the processed image
     plt.subplot(1, 2, 2)
-    # Access the first (and only) image in the batch
-    plt.imshow(img_array[0, :, :, 0], cmap='gray')
+    plt.imshow(img_array[0, :, :, 0], cmap='gray')  # Access the first (and only) image in the batch
     plt.title('Processed Image')
 
     plt.show()
@@ -86,8 +83,7 @@ def get_prediction(cv2_image):
     # Make predictions
     predictions = model.predict(img_array)
 
-    class_labels = ['angry', 'disgust', 'fear',
-                    'happy', 'neutral', 'sad', 'surprise']
+    class_labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 
     # Get the index of the maximum value in predictions
     predicted_class_index = np.argmax(predictions)
@@ -97,17 +93,8 @@ def get_prediction(cv2_image):
 
     # print('Predicted Class Label:', predicted_class_label)
     # print('Predictions:', predictions)
-    response = {
-        "analysis_engagement": {class_labels[i]: float(predictions[0][i]) for i in range(len(class_labels))}
-    }
-
-    # Print the JSON object
-    print(json.dumps(response, indent=4))
+    response = {class_labels[i]: float(predictions[0][i]) for i in range(len(class_labels))}
     return response
-
 
 if __name__ == '__main__':
     quit(-1)
-    # image_path = 'IMG_3357.jpg'
-    # cv2_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    # get_prediction(cv2_image)
