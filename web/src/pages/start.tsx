@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import LineGraph from "@/components/LineGraph";
 import RadarGraph from "@/components/RadarGraph";
 import { useEffect, useRef, useState } from "react";
 
@@ -24,12 +25,30 @@ export default function Page() {
       setStream(null);
     }
   }
+  const takeScreenshot = () => {
+    const canvas = document.createElement("canvas");
+    const video = videoRef.current;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    return canvas.toDataURL("image/png");
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => closeStream(), []);
   useEffect(() => {
+    async function updateLoop() {
+      while (stream && videoRef.current) {
+        console.log("update");
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+
     if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
+      updateLoop();
     }
   }, [stream]);
 
@@ -59,6 +78,7 @@ export default function Page() {
           <Button onClick={closeStream} disabled={!stream} className="bg-error">
             Stop Screensharing
           </Button>
+          <Button onClick={takeScreenshot}>Take Screenshot</Button>
         </div>
       </div>
       <div className="flex-[35]">
@@ -79,22 +99,48 @@ export default function Page() {
           </button>
         </div>
         <div className="w-full bg-primary-container p-3 rounded-b-xl">
-          <div className="w-full flex justify-center pr-[2%]">
-            <div className="w-[225px]">
-              <RadarGraph
-                labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
-                data={[10, 20, 30, 40, 50, 60, 70]}
-              />
+          {graphTab === "radar" ? (
+            <>
+              <div className="w-full flex justify-center pr-[2%]">
+                <div className="w-[225px]">
+                  <RadarGraph
+                    labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
+                    data={[10, 20, 30, 40, 50, 60, 70]}
+                  />
+                </div>
+              </div>
+              <div className="w-full flex justify-center pl-[6%]">
+                <div className="w-[300px]">
+                  <RadarGraph
+                    labels={[
+                      "Engaged",
+                      "Looking Away",
+                      "Bored",
+                      "Confused",
+                      "Frustrated",
+                      "Drowsy",
+                    ]}
+                    data={[10, 20, 30, 40, 50, 60]}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-center">
+              <div className="w-[70%] flex flex-col py-8">
+                <h2 className="text-title-medium mb-2 text-center">Emotion Score</h2>
+                <LineGraph
+                  labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
+                  data={[10, 20, 30, 40, 50, 60, 70]}
+                />
+                <h2 className="text-title-medium mb-2 text-center mt-12">Engagement Score</h2>
+                <LineGraph
+                  labels={["Happy", "Neutral", "Sad", "Disgust", "Anger", "Fear", "Surprise"]}
+                  data={[10, 20, 30, 40, 50, 60, 70]}
+                />
+              </div>
             </div>
-          </div>
-          <div className="w-full flex justify-center pl-[6%]">
-            <div className="w-[300px]">
-              <RadarGraph
-                labels={["Engaged", "Looking Away", "Bored", "Confused", "Frustrated", "Drowsy"]}
-                data={[10, 20, 30, 40, 50, 60]}
-              />
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

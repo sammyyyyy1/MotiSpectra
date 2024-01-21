@@ -1,16 +1,17 @@
-import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  RadialLinearScale,
+  CategoryScale,
+  LinearScale,
   PointElement,
   LineElement,
-  Filler,
+  Title,
   Tooltip,
   Legend,
 } from "chart.js";
+import { Line } from "react-chartjs-2";
 import getGraphGradient from "./getGraphGradient";
 
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const onSurface = "#ece0da";
 const outline = "#9f8d83";
@@ -20,41 +21,37 @@ interface Props {
   data: number[];
 }
 
-export default function RadarGraph({ labels, data }: Props) {
+export default function LineGraph({ labels, data }: Props) {
   return (
-    <Radar
+    <Line
       data={{
         labels,
         datasets: [
           {
             data,
-            backgroundColor: getGraphGradient,
+            backgroundColor: "#fff",
             borderColor: getGraphGradient,
-            borderWidth: 2,
+            borderWidth: 4,
           },
         ],
       }}
       options={{
         scales: {
-          r: {
+          x: {
             grid: {
-              color: outline,
-            },
-            angleLines: {
               color: outline,
             },
             ticks: {
               display: false,
-              stepSize: 20,
             },
-            pointLabels: {
-              color: onSurface,
-              font: {
-                size: 14,
-              },
+          },
+          y: {
+            grid: {
+              color: outline,
             },
-            min: 0,
-            max: 100,
+            ticks: {
+              display: false,
+            },
           },
         },
         plugins: {
