@@ -8,6 +8,7 @@ export default function Page() {
   const videoRef = useRef<any>(null);
   const [stream, setStream] = useState<null | MediaStream>(null);
   const [graphTab, setGraphTab] = useState<"radar" | "avg">("radar");
+  const [boxes, setBoxes] = useState<[[number, number], [number, number]][]>([]);
 
   async function startStream() {
     try {
@@ -24,6 +25,7 @@ export default function Page() {
       const tracks = stream.getTracks();
       tracks.forEach((track) => track.stop());
       setStream(null);
+      setBoxes([]);
     }
   }
   const takeScreenshot = () => {
@@ -34,16 +36,40 @@ export default function Page() {
     canvas.height = video.videoHeight;
 
     canvas.getContext("2d")?.drawImage(video, 0, 0);
-    return canvas.toDataURL("image/png");
+    return canvas.toDataURL("image/jpeg");
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => closeStream(), []);
   useEffect(() => {
     async function updateLoop() {
+      // wait a bit before starting
+      await new Promise((resolve) => setTimeout(resolve, 250));
+
+      // loop
+      let lastTime = Date.now();
       while (stream && videoRef.current) {
-        console.log("update");
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log(1, Date.now() - lastTime);
+        lastTime = Date.now();
+        // await new Promise((resolve) => setTimeout(resolve, 17));
+        const image = takeScreenshot();
+        console.log(2, Date.now() - lastTime);
+        if (image === "data:,") continue;
+        const res = await fetch("http://192.168.57.220:5000/process-image", {
+          method: "POST",
+          body: JSON.stringify({
+            image: image,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        console.log(3, Date.now() - lastTime);
+        const data = await res.json();
+        console.log(4, Date.now() - lastTime);
+        setBoxes(data.boxes);
+        console.log(5, Date.now() - lastTime);
+        console.log()
       }
     }
 
@@ -57,17 +83,35 @@ export default function Page() {
     <div className="h-dvh flex p-4 gap-4">
       <div className="flex flex-col flex-[65] gap-4">
         <div
-          className={`w-full ${stream ? "max-h-[100dvh_-_76px]" : "h-[80%]"} rounded-xl outline outline-on-surface flex justify-center items-center`}
+          className={`w-full ${stream ? "max-h-[100dvh_-_76px]" : "h-[80%]"} rounded-xl outline outline-on-surface 
+                     flex justify-center items-center relative`}
         >
           {stream ? (
-            <video
-              ref={videoRef}
-              className="object-fill"
-              autoPlay
-              playsInline
-              muted
-              style={{ maxWidth: "100%" }}
-            />
+            <div className="relative rounded-xl">
+              <video
+                ref={videoRef}
+                className="object-fill"
+                autoPlay
+                playsInline
+                muted
+                style={{ maxWidth: "100%" }}
+              />
+              {boxes.map((box, i) => (
+                <div
+                  style={{
+                    left: `${box[0][0] * 100}%`,
+                    top: `${box[0][1] * 100}%`,
+                    position: "absolute",
+                    width: `${box[1][0] * 100}%`,
+                    height: `${box[1][1] * 100}%`,
+                    outlineWidth: "3px",
+                    outlineColor: "#0F0",
+                    outlineStyle: "solid",
+                  }}
+                  key={i}
+                />
+              ))}
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center">
               <Image
