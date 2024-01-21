@@ -21,6 +21,7 @@ interface Props {
 }
 
 export default function RadarGraph({ labels, data }: Props) {
+  console.log("graph render", {labels, data})
   return (
     <Radar
       data={{
