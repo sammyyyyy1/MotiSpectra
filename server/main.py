@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import time
 import base64
+from scripts import predict
 
 app = Flask(__name__)
 detector = cv2.FaceDetectorYN.create("face_detection_yunet_2023mar.onnx", "", (720, 720), 0.55, 0.5)
@@ -59,21 +60,30 @@ def process_image():
             ] for array in detections[1]
         ]
 
-    analysis_emotion = []
-    analysis_engagement = []
+    empty_dict = {'analysis_emotion': None,
+                  'analysis_engagement': None}
+    response_dict = predict.predict(frame)
 
-    result = {
-        'boxes': boxes,
-        'landmarks': landmarks,
-        'analysis_emotion': None if not analysis_emotion else {
-            'label': analysis_emotion.get('label', None),
-            'predictions': analysis_emotion.get('predictions', None)
-        },
-        'analysis_engagement': None if not analysis_engagement else {
-            'label': analysis_engagement.get('label', None),
-            'predictions': analysis_engagement.get('predictions', None)
-        }
-    }
+    result = {'boxes': boxes,
+              'landmarks': landmarks}
+
+    if response_dict:
+        result.update(response_dict)
+    else:
+        result.update(empty_dict)
+
+    # result = {
+    #     'boxes': boxes,
+    #     'landmarks': landmarks,
+    #     'analysis_emotion': None if not analysis_emotion else {
+    #         'label': analysis_emotion.get('label', None),
+    #         'predictions': analysis_emotion.get('predictions', None)
+    #     },
+    #     'analysis_engagement': None if not analysis_engagement else {
+    #         'label': analysis_engagement.get('label', None),
+    #         'predictions': analysis_engagement.get('predictions', None)
+    #     }
+    # }
     inf_time = round(time.time() - t0, 3)
     fps = round(1 / inf_time, 2)
     print(inf_time, fps)
