@@ -1,14 +1,16 @@
-import cv2
-import json
-import predict_engagement as pen
-import predict_emotion as pem
+from .predict_emotion import get_prediction as pem
+from .predict_engagement import get_prediction as pen
+
+# import predict_emotion
+# import predict_engagement
 
 def predict(cv2_image):
     response = {
-        "analysis_emotion": pem.get_prediction(cv2_image),
-        "analysis_engagement": pen.get_prediction(cv2_image)
+        "analysis_emotion": pem(cv2_image),
+        "analysis_engagement": pen(cv2_image)
     }
     return response
+
 
 if __name__ == '__main__':
     quit(-1)

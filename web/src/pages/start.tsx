@@ -98,6 +98,7 @@ export default function Page() {
             },
           });
           const data = await res.json();
+          console.log(data)
           setBoxes(data.boxes);
         } catch (error) {
           console.error("Error looping through capture:", error);

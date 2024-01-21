@@ -6,3 +6,6 @@ Keras
 Keras-Preprocessing
 Keras-Applications
 tensorflow
+flask
+flask-cors
+psutil
