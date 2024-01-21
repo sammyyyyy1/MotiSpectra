@@ -52,6 +52,8 @@ export default function LineGraph({ labels, data }: Props) {
             ticks: {
               display: false,
             },
+            min: 0,
+            max: 100,
           },
         },
         plugins: {
