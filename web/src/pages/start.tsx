@@ -9,7 +9,9 @@ export default function Page() {
   const [stream, setStream] = useState<null | MediaStream>(null);
   const [graphTab, setGraphTab] = useState<"radar" | "avg">("avg");
   const [showGrid, setShowGrid] = useState(false)
+  const [showLandmark, setShowLandmark] = useState(false)
   const [boxes, setBoxes] = useState<[[number, number], [number, number]][]>([]);
+  const [landmarks, setLandmarks] = useState<[number, number][]>([])
   const [analysisData, setAnalysisData] = useState<
     {
       emotion: {
@@ -102,6 +104,8 @@ export default function Page() {
           });
           const data = await res.json();
           setBoxes(data.boxes);
+          setLandmarks(data.landmarks);
+          console.log(data.landmarks);
           if (data.analysis_emotion) {
             console.log("DO STUFF")
             console.log(data)
@@ -236,6 +240,75 @@ export default function Page() {
                   key={i}
                 />
               ))}
+              {showLandmark && landmarks.map((landmark, i) => (
+                <>
+                <div
+                  style={{
+                    left: `${landmark[0][0] * 100}%`,
+                    top: `${landmark[0][1] * 100}%`,
+                    position: "absolute",
+                    width: `2px`,
+                    height: `2px`,
+                    outlineWidth: "3px",
+                    outlineColor: "#00F",
+                    outlineStyle: "solid",
+                  }}
+                  key={i}
+                />
+                <div
+                  style={{
+                    left: `${landmark[1][0] * 100}%`,
+                    top: `${landmark[1][1] * 100}%`,
+                    position: "absolute",
+                    width: `2px`,
+                    height: `2px`,
+                    outlineWidth: "3px",
+                    outlineColor: "#00F",
+                    outlineStyle: "solid",
+                  }}
+                  key={i}
+                />
+                <div
+                  style={{
+                    left: `${landmark[2][0] * 100}%`,
+                    top: `${landmark[2][1] * 100}%`,
+                    position: "absolute",
+                    width: `2px`,
+                    height: `2px`,
+                    outlineWidth: "3px",
+                    outlineColor: "#00F",
+                    outlineStyle: "solid",
+                  }}
+                  key={i}
+                />
+                <div
+                  style={{
+                    left: `${landmark[3][0] * 100}%`,
+                    top: `${landmark[3][1] * 100}%`,
+                    position: "absolute",
+                    width: `2px`,
+                    height: `2px`,
+                    outlineWidth: "3px",
+                    outlineColor: "#00F",
+                    outlineStyle: "solid",
+                  }}
+                  key={i}
+                />
+                <div
+                  style={{
+                    left: `${landmark[4][0] * 100}%`,
+                    top: `${landmark[4][1] * 100}%`,
+                    position: "absolute",
+                    width: `1px`,
+                    height: `1px`,
+                    outlineWidth: "1px",
+                    outlineColor: "#00F",
+                    outlineStyle: "solid",
+                  }}
+                  key={i}
+                />
+                </>
+              ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center">
@@ -262,6 +335,11 @@ export default function Page() {
             onClick={() => setShowGrid(!showGrid)}
           >
             Toggle Face Grid
+          </Button>
+          <Button
+            onClick={() => setShowLandmark(!showLandmark)}
+          >
+            Toggle Face Landmarks
           </Button>
         </div>
       </div>
